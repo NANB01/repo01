@@ -1,0 +1,460 @@
+TypeScript / Protractor Notes:  
+	reference:  - https://www.toolsqa.com/protractor/protractor-typescript/
+				- https://www.toolsqa.com/protractor/protractor-test-script/
+				- https://chercher.tech/protractor/page-object-model-protractor
+				
+
+Below is the list of Modules:
+    - Protractor Node Module
+    - TypeScript Module
+    - Jasmine
+    - Type Definition for Jasmine
+    - Type Definition for Node
+    - TS-Node
+    - Spec Reporter
+    - HTML Reporter
+	
+- A lot of functionality coming from third-party libraries, the compiler needs to understand the path of certain files. 
+	- For the same purpose, correct configurations need to be set up for the project. These configurations are mentioned in the tsconfig.json file. The same way project dependencies are mentioned in the package.json file.
+- Specs & config files places in main project directory (same as pom.xml file)
+
+Typical project directore structure:
+    src folder to place all the spec files and page object files
+    page-object folder which is placed inside src folder is to hold the page object file
+    (home)-page.ts file which is placed in the page-object folder, which will have all the locators related to the spec
+    (home)-spec.ts file which is placed inside the src folder, which will have protractor specs
+	
+Create tsconfig.json at the root level and mention some of the properties inside that file. Once tsc command is invoked all the files inside the root and the subfolders automatically converted to javascript.
+	1. Open the Terminal. This can be opened from the top main menu. Choose Terminal ==> New Terminal.
+	2. Type the command in terminal tsc ––init 
+	3. The above command generates default tsconfig.json file, with some default text, those are not helping much. Configure it specifically to the end-to-end project, copy and paste the below content. 
+
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "mapRoot": "./dist/out-tsc/",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types",
+    ],
+    "lib": [
+      "es2017",
+      "dom"
+    ]
+  }
+}
+
+
+
+The tsconfig.json helps to covert all the typescript files automatically to javascript let’s look at important properties:
+
+    Compiler options: All the properties inside will be used for compiling typescript code
+    baseurl: Setting baseUrl informs the compiler where to find modules. All module imports with non-relative names are assumed to be relative to the baseUrl
+    outDir: Redirects output structure to the directory, i.e your typescript equivalent javascript will be placed in this directory
+    mapRoot: Specifies the location where debugger should locate map files instead of generated locations. Use this flag if the .map files will be located at run-time in a different location than the .js files. The location specified will be embedded in the sourceMap to direct the debugger where the map files will be located.
+    sourceMap: If the option is set to true generates corresponding .map file.
+    moduleResolution: Determine how modules get resolved. Either “Node” for Node.js/io.js style resolution, or “Classic”
+    emitDecoratorMetadata: Emit design-type metadata for decorated declarations in source
+    experimentalDecorators: Enables experimental support for ES decorators.
+    allowSyntheticDefaultImports: Allow default imports from modules with no default export. This does not affect code emit, just type checking
+    target: Specify ECMAScript target version: "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017"
+    typeRoots: List of folders to include type definitions
+    lib: List of library files to be included in the compilation
+
+	***  Note: Keep the tsconfig.json file at the root directory level
+
+Manage protractor project dependencies in pacakge.json
+	- What is package.json file? - Package.json is the main file in any node.js framework, It holds two kinds of information
+	- Project Identification properties: This section consists of the properties to identify the module/project such as the name of the project, current version of the module, license, author of the project, description about the project, etc.
+	- Functional properties: This section consists of the functional values or properties of the project or module such as the entry/starting point of the module, project dependencies, project scripts, repository links of node project, etc.
+	1. Invoke command line package.json generator tool by typing the following command in the terminal:  npm init
+	2. Provide the required details on the window. The generator tool asks some questions which are required to generate package.json, Answer as given below
+
+Add required Node modules for Protractor Typescript Project:
+	- Add all the required modules at the root level in our example where our end-to-end-project folder is located.
+	1.  Add protractor node module:
+		- Protractor Node Modules help to build the automation framework using the protractor API. Open the terminal window again and type the command:
+		- npm install ––save protractor
+
+		***  Note: Though protractor is installed globally some times Visual Studio Code doesn’t pick from the global package. so it’s always better to install locally, Use ––save option used to install the package locally i.e specific to project.
+
+	2. Install Typescript module:
+		- Typescript Node Module helps to write automation test case in typescript language and compile to javascript in order to execute the test case. To install this package open terminal and type command:
+		- npm install ––save typescript
+
+	3. Install Jasmine:
+		- Protractor framework uses Jasmine Assertion libraries in spec files. To install this package open terminal and type command:
+		- npm install ––save jasmine
+
+	4. Install Type definition for Jasmine:
+		- Installing Type Definitions for Jasmine helps in autocomplete suggestions. These pre-defined type definition files contain information like what are the functions available, what parameters it takes. VS Code uses all this information for auto-suggestion. To install this package open terminal and type command:
+		- npm install ––save @types/jasmine
+
+	5. Install Type definitions for Node:
+		- This package contains Type Definitions for NodeJS, This provides the auto-suggestions for classes. To install this package type the following command in terminal:
+		- npm install ––save @types/node
+
+	6. Install ts-node:
+		- The typescript automation tests use the imports from a few other packages/modules, This helps in module resolution and execute typescript code. To install this package type the following command:
+		- npm install ––save ts-node
+ 
+	7. Install spec reporter:
+		- Installing Spec Reporter package provides us real-time test results on the console. To install this package type command:
+		- npm install ––save jasmine-spec-reporter 
+		
+		***  Note: jasmine-spec-reporter package is optional, skip this step if it’s not required, later you can install this package and configure your console reports.
+
+	8. Protractor HTML reporter (Optional):
+		- This package helps to generate beautiful HTML result. This can be installed by typing the following command in terminal:  npm install ––save protractor-html-reporter-2
+		
+		***  Note: protractor-html-reporter-2 package is optional, skip this step if it’s not required, later you can install this package and configure your HTML Results.
+		
+		- After installation package.json have all the dependencies added in the dependencies section. Open your package.json file make sure all the dependencies added.
+		
+
+	** Note: No need to install these packages again and again. All the installed packaged added in the dependency list of pacakge.json. To install all the package which are in dependency, navigate to the folder where pacakge.json located and then type the command in terminal: npm install to install all the dependencies automatically.
+
+
+Set up Protractor Typescript configuration in protractor.conf.js:
+	The very basic protractor.conf.js looks like below:
+
+exports.config = {
+    framework: 'jasmine', //Type of Framework used 
+    directConnect:true,    
+    specs: ['spec.js'], //Name of the Specfile
+  }
+
+	***  Note: If you don’t have protractor.conf.js created, first you need to create one under the src directory mention the above details.
+
+1. Create onPrepare() function in protractor.conf.js
+	- If you need to do global preparation for your tests you can put this into the config file i.e protractor.conf.js by creating on prepare function, let’s create one.
+	
+exports.config = {
+    framework: 'jasmine', //Type of Framework used 
+    directConnect:true, 
+    specs: ['spec.js'], //Name of the Specfile
+    onPrepare() { 
+       //global test set-up goes here 
+    }  
+ }
+
+2. Create onComplete() function in protractor.conf.js
+	- If you need to do global tear down for your tests you can put this into the config file i.e protractor.conf.js by creating on complete function, let’s create one.
+
+exports.config = {
+    framework: 'jasmine', //Type of Framework used 
+    directConnect:true, 
+    specs: ['spec.js'], //Name of the Specfile
+    onPrepare() { 
+       //global test set-up goes here 
+    } 
+   onComplete() { 
+       //global test tear-down goes here 
+    }   
+ }
+ 
+3. Set up the ts-node:
+	- Tests written in protractor typescript may fail if couldn’t find required modules or imports are not resolved. ts-node resolves the package imports and handles the typescript execution smoothly. Let the ts-node take all these headaches, so configure ts-node in protractor.conf.js file
+
+exports.config = {
+        framework: 'jasmine', //Type of Framework used 
+        directConnect:true, 
+        specs: ['spec.js'], //Name of the Specfile 
+        onPrepare() { 
+              require('ts-node').register({ 
+              project: require('path').join(__dirname, './tsconfig.json') // Relative path of tsconfig.json file 
+         });
+        } 
+}
+Your protractor typescript automation framework with integrated Visual Studio Code is now ready, start writing tests. 
+
+
+
+
+
+
+
+Steps to write Protractor Test Script:
+	- To execute protractor tests we need at least one spec file and one configuration file.
+	- Spec file can be written in javascript or typescript
+	
+
+	
+	
+	
+
+	
+	
+Page Object Model:
+ Page Object Model(POM) is an object design pattern implementations of Page factory in protractor, where web pages are represented as Typescript classes, and the various elements on the page are defined as a method on the PO classes. All reusable methods are stored in libraries
+
+    Page Object Model(POM) is one of the implementations of the design pattern called Page Factory.
+    In protractor, we will create the Page Object Modal class to develop and store the re-usable methods. These methods are nothing but Page Objects
+    Page Objects are nothing but web elements present on the web page like Buttons, links, tabs, text bars
+    We have to create page object class for every page present in the application if the application is single page application (spa) we have to create page object classes for each tab
+
+Page Objects Class in TypeScript:
+	Page Object class contains all the page object(web elements) for a particular page. For every page present application, we have to write the Page Object class.
+	Page Object class name should end with PO so that it will be easy for the user to identify the page object class.
+
+Below code is an example for the Page objects in typescript, we will discuss how to form page object in javascript in the next topic.
+        Create new folder and name it as PageObjectModel_CherCherTech
+        Create another folder called PO.
+        Create a new file inside the PO folder and name it as GooglePO.ts, saving with ts extension is very important
+        Create a class called GooglePO and export it
+
+Page Object through Variables:
+        Create a variable called the searchbar inside the GooglePO class.
+        Find the search bar and assign that ElementFinder to the searchbar variable.
+
+public static googleSearch = element(by.name("btnK"))
+
+Page Objects through Methods :
+        Create a public method called feelingLucky() inside the GooglePO class
+        Find the feeling lucky button and return it
+
+// using method
+feelingLucky(){
+    return element(by.name("btnI"))
+}
+
+Complete code for the Page Objects in protractor:
+import { browser, element, by } from "protractor";
+export class GooglePO{
+    // using variables
+    public static searchBar = element(by.name("q"))
+    public static googleSearch = element(by.name("btnK"))
+    // using method
+    feelingLucky(){
+        return element(by.name("btnI"))
+    }
+}
+
+Handle Hidden division Pop Up / Calendar Pop up using Protractor
+Library files in Page object model in Protractor
+Sometimes we may have repeating test steps across the script; in such cases, we have to create those steps as re-usable methods. Re-usable methods can be used across multiple scripts in the framework
+        Create a folder called Lib inside the PageObjectModel_CherCherTech
+        Create a file called GoogleLib; the name should match with your PO file except for the suffix
+        Create a class called GoogleLib; the name should match with your PO file except for the suffix
+        Write a public method searchGoogle(), which accepts a string parameter
+        Inside searchGoogle() place google searching code
+
+searchGoogle(searchTerm :string){
+	GooglePO.searchBar.sendKeys(searchTerm)
+	GooglePO.searchButton.click()
+}
+
+Complete code for Library files:
+import { GooglePO } from "../PO/GooglePO";
+export class GoogleLib{
+    searchGoogle(searchTerm :string){
+        GooglePO.searchBar.sendKeys(searchTerm)
+        GooglePO.searchButton.click()
+    }
+}
+
+Handle Authentication Pop Up in Protractor
+Spec files
+Spec files will have our test codes; it is important to have a separate folder for every category.
+    Create a folder called Specs in inside the PageObjectModel_CherCherTech folder
+    Create a file called GoogleSpec.ts; this should match with PO and Lib file names except for the suffix
+    Create describe and It blocks for test cases
+
+import { browser } from "protractor";
+import { GoogleLib } from "../Lib/GoogleLib";
+import { GooglePO } from "../PO/GooglePO";
+let googleLib = new GoogleLib()
+describe("Page Object Model in Protractor",function(){
+  browser.ignoreSynchronization = true; // for non-angular websites
+  it("Search Google",function(){
+    browser.get("https://google.com")
+    googleLib.searchGoogle("chercher tech")
+  });
+  it("click operation",function(){
+    browser.get("https://google.com")
+    GooglePO.feelingLucky().click()
+  });
+});
+
+
+Conf file for the test:
+exports.config = {
+  // launch locally when fields directConnect and seleniumAddress are not provided
+  chromeDriver: 'D:/Eclipse progs/driverserver/chromedriver.exe',
+  seleniumServerJar: 'D:/Eclipse progs/jars/selenium-server-standalone-3.11.0.jar',
+  specs: ['D:Protractor DemoJSFilesLocationPageObjectModel_CherCherTechspecs	est.js'],
+  capabilities: {
+	browserName: 'chrome'
+  }
+}
+
+JSON File Data for Page Object Model(POM)
+
+While creating a POM framework, it is important to read data from the external files, so in the below code, we would be reading values from JSON File.
+
+In this JSON class, we have to write methods to read and write the data from the JSON file.
+
+    Create a folder called 'utility' inside the PageObjectModel_CherCherTech folder.
+    Create a file called jsonUtility.ts
+    Create Class inside the 'jsonUtility.ts' called JSONutils
+    In this class, we have to write a function for reading and writing the JSON files
+    Please do visit JSON reading and writing in the Protractor tutorial.
+
+JSON data file named as 'cherchertech.json'
+
+{
+	"name": "karthiq",
+	"age": 27,
+	"gender": "Male",
+	"website": "cherchertech protractor"
+}
+
+
+JSON file Reading Code.
+
+// import the fs module
+const fs = require('fs');
+export class JSONutility{
+    public readData(path:string, propertyToRetrieve:string){
+        // read the file into raw data
+        let rawdata = fs.readFileSync(path);
+        // parse the raw data into meaningful JSON format
+        let author = JSON.parse(rawdata);
+        let websiteValue = author["website"]
+        return websiteValue
+    }
+}
+
+
+Now read the 'website' property from the JSON file as our search term. Please make changes in existing it block or add this as new it block in the test spec file
+
+We have to pass the path of the JSON file and the 'property' to read from the JSON file to make the JSON reading for common to all.
+
+it("Search Google with JSON reading",function(){
+    browser.get("https://google.com")
+    let searchTerm = jsonutil.readData("./cherchertech.json", "website")
+    googleLib.searchGoogle(searchTerm)
+  });
+
+
+read-json-file-pom-protractor
+
+Scroll an element Into View using JavaScript Executor in Protractor
+Read Excel data for POM
+
+Data could be stored in Excel sheets as well in Page Object Model(POM); in such cases, we have to create a utility class to read the data from the excel sheet file in POM.
+
+        Create a file called excelUtility.ts
+        Create Class inside the 'excelUtility.ts' called EXCELutils
+        In this class, we have to write a function for reading and writing the EXCEL files
+        Please do visit EXCEL reading and writing in the Protractor tutorial.
+        We can read the excel sheet using ExcelJS modules in protractor with Javascript/Typescript
+        Find the numbering for rows and cells
+
+excel-file-pom-protractor-api
+
+Excel reading utility in typescript protractor
+
+import {Workbook, Row, Cell, Worksheet} from 'exceljs';
+const wb:Workbook = new Workbook();
+export class EXCELutility{
+
+    public readExcel(excelPath:string, sheetName:string,
+        rowNumber:number, columNumber:number){
+            // read xlsx file type and return entire function after receiving return
+            return wb.xlsx.readFile(excelPath).then(function(){
+            //sheet object
+            let sheet:Worksheet = wb.getWorksheet(sheetName);
+            //row objct
+            let rowObject:Row = sheet.getRow(rowNumber);
+            // cell object
+            let cellObject:Cell = rowObject.getCell(columNumber);
+            // get value from cell
+            let cellvalue = cellObject.value
+            // return valu from function
+            return cellvalue
+        })
+    }
+}
+Notice the two return statements in the above code, return cellvalue is to return the value to the function readFile, return wb.xlsx.readFile returns a promise contains the value that was received as return from cellvalue
+
+import { browser } from "protractor";
+import { GoogleLib } from "../Lib/GoogleLib";
+import { EXCELutility } from "../utility/excelutility";
+let googleLib = new GoogleLib()
+let excelutil = new EXCELutility();
+describe("Page Object Model in Protractor",function(){
+  browser.ignoreSynchronization = true; // for non-angular websites
+  it("Search Google",function(){
+    browser.get("https://chercher.tech")
+    excelutil.readExcel("test.xlsx", "Sheet1", 2, 1).then(function(searchTerm){
+      console.log(searchTerm)
+      googleLib.searchGoogle(searchTerm.toString())
+    })
+  });
+});
+
+
+excel-value-pom-protractor-api
+
+Package.json with Protractor
+Winston Logging in Page Object Model in Protractor
+
+It is crucial to do the in the execution of the framework; In protractor, we will be using the Winston logging package to track the logs.
+
+    Create folder called 'loggingutility' inside PageObjectModel_CherCherTech folder
+    Create a file called winstonutility.ts
+    Create a class called Logger inside the winstonutility.ts file
+    We should use the 'logger' static variable present in the Logger class to log the comment
+    I suggest reading the full tutorial on Logging with Winston in protractor typescript
+
+import {createLogger, format, transports} from 'winston'
+export class Logger{
+    static logger = createLogger({
+        level: 'info',
+        format: format.simple(),
+        transports: [
+        // - Write to all logs with level `info` and above to `combined.log`
+        new transports.File({ filename: 'combined.log'}),
+				// - Write all logs error (and above) to Console/terminal
+        new transports.Console()
+        ]
+    });
+}
+
+
+The above logger will write the logs to console and files as well.
+
+Test File and there is no change to the conf file
+
+import { browser } from "protractor";
+import { GoogleLib } from "../Lib/GoogleLib";
+import { EXCELutility } from "../utility/excelutility";
+import { Logger } from "../loggingutility/winstonutility";
+let googleLib = new GoogleLib()
+let excelutil = new EXCELutility();
+let log = Logger.logger
+describe("Page Object Model in Protractor",function(){
+  browser.ignoreSynchronization = true; // for non-angular websites
+  it("Search Google",function(){
+    // logging using log methods
+    log.log("warn", "warn message from test")
+    browser.get("https://google.com")
+    // logging using info() methods
+    log.info("Opening Google webpage")
+    excelutil.readExcel("test.xlsx", "Sheet1", 2, 1).then(function(searchTerm){
+      // logging with log method
+      log.log("info", "The value read from Excel is :"+searchTerm)
+      console.log(searchTerm)
+      googleLib.searchGoogle(searchTerm.toString())
+    })
+  });
+});
